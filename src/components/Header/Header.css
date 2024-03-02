@@ -1,0 +1,13 @@
+header {
+    position: relative !important;
+    padding: 8px 25px;
+}
+
+header .title {
+    flex-grow: 1;
+}
+
+header .player {
+    display: flex;
+    align-items: center;
+}

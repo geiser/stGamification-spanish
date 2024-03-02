@@ -1,0 +1,237 @@
+{
+    "localization": {
+        "pageTitle": "",
+        "title": "",
+        "points": "Puntos",
+        "rightAnswers": "Correcto",
+        "ranking": "Clasificación",
+        "myTrophies": "Mis trofeos",
+        "stMessage": {
+            "header": "Noticias importantes",
+            "text": "",
+            "next": "Continuar",
+            "img": ""
+        },
+        "avatarSelection": {
+            "header": "1 - Personalizar",
+            "text": "Elige un avatar:",
+            "next": "Continuar"
+        },
+        "wrongAnswer": "¡Respuesta equivocada!",
+        "rightAnswer": "¡Respuesta correcta!",
+        "quiz": {
+            "header": "¡Responder!",
+            "text": "¡Responde las siguientes preguntas para ganar puntos, trofeos y alcanzar una mejor posición en la clasificación!"
+        }
+    },
+
+    "preTest": "https://www.jotform.com/build/233376039608057?sessionid={{sessionid}}",
+    "postTest": "https://www.jotform.com/build/240235651251043",
+
+    "playSound": true,
+
+    "theme": {
+        "primary": "brown",
+        "secondary": "brown"
+    },
+    
+    "ranking":  [{
+        "name": "Alan",
+        "points": 79,
+        "avatar": "./assets/{theme}/images/ranking1.png"
+    }, {
+        "name": "Valentine",
+        "points": 75,
+        "avatar": "./assets/{theme}/images/ranking2.png"
+    }, {
+        "name": "Francis",
+        "points": 63,
+        "avatar": "./assets/{theme}/images/ranking3.png"
+    }, {
+        "name": "Danni",
+        "points": 27,
+        "avatar": "./assets/{theme}/images/ranking4.png"
+    }],
+
+    "avatarList": [
+        "./assets/{theme}/images/avatar1.png",
+        "./assets/{theme}/images/avatar2.png",
+        "./assets/{theme}/images/avatar3.png"
+    ],
+    
+    "questions": [
+        {
+            "id": "1",
+            "text": "",
+            "image": "./assets/default/images/q-0.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA B"
+        },
+        {
+            "id": "2",
+            "text": "",
+            "image": "./assets/default/images/q-1.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA E"
+        },
+        {
+            "id": "3",
+            "text": "",
+            "image": "./assets/default/images/q-2.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA E"
+        },
+        {
+            "id": "4",
+            "text": "",
+            "image": "./assets/default/images/q-3.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA E"
+        },
+        {
+            "id": "5",
+            "text": "",
+            "image": "./assets/default/images/q-4.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA A"
+        },
+        {
+            "id": "6",
+            "text": "",
+            "image": "./assets/default/images/q-5.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA B"
+        },
+        {
+            "id": "7",
+            "text": "",
+            "image": "./assets/default/images/q-6.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA D"
+        },
+        {
+            "id": "8",
+            "text": "",
+            "image": "./assets/default/images/q-7.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA E"
+        },
+        {
+            "id": "9",
+            "text": "",
+            "image": "./assets/default/images/q-8.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA B"
+        },
+        {
+            "id": "10",
+            "text": "",
+            "image": "./assets/default/images/q-9.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA B"
+        },
+        {
+            "id": "11",
+            "text": "",
+            "image": "./assets/default/images/q-10.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA E"
+        },
+        {
+            "id": "12",
+            "text": "",
+            "image": "./assets/default/images/q-11.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA B"
+        },
+        {
+            "id": "13",
+            "text": "",
+            "image": "./assets/default/images/q-12.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA C"
+        },
+        {
+            "id": "14",
+            "text": "",
+            "image": "./assets/default/images/q-13.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA E"
+        },
+        {
+            "id": "15",
+            "text": "",
+            "image": "./assets/default/images/q-14.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA A"
+        },
+        {
+            "id": "16",
+            "text": "",
+            "image": "./assets/default/images/q-15.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA C"
+        },
+        {
+            "id": "17",
+            "text": "",
+            "image": "./assets/default/images/q-16.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA B"
+        },
+        {
+            "id": "18",
+            "text": "",
+            "image": "./assets/default/images/q-17.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA D"
+        },
+        {
+            "id": "19",
+            "text": "",
+            "image": "./assets/default/images/q-18.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA B"
+        },
+        {
+            "id": "20",
+            "text": "",
+            "image": "./assets/default/images/q-19.png",
+            "answers": [ "LETRA A", "LETRA B", "LETRA C", "LETRA D", "LETRA E" ],
+            "rightAnswer": "LETRA A"
+        }
+    ],
+
+    "trophies": [
+        {
+            "id": "badge5",
+            "lockedImage": "./assets/{theme}/images/5points.png",
+            "image": "./assets/{theme}/images/badge5.png",
+            "unlockAt": {
+                "points": 25,
+                "correctAnswers": 5,
+                "question": 0
+            }
+        },
+        {
+            "id": "badge10",
+            "lockedImage": "./assets/{theme}/images/10points.png",
+            "image": "./assets/{theme}/images/badge10.png",
+            "unlockAt": {
+                "points": 50,
+                "correctAnswers": 10,
+                "question": 0
+            }
+        },
+        {
+            "id": "badge",
+            "lockedImage": "./assets/{theme}/images/0points.png",
+            "image": "./assets/{theme}/images/badge.png",
+            "unlockAt": {
+                "points": 0,
+                "correctAnswers": 0,
+                "question": 20
+            }
+        }
+    ]
+}

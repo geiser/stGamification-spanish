@@ -1,0 +1,60 @@
+{
+    "localization": {
+        "pageTitle": "",
+        "title": "",
+        "points": "Puntos",
+        "rightAnswers": "Correcto",
+        "ranking": "Clasificación",
+        "myTrophies": "Mis trofeos",
+        "stMessage": {
+            "header": "Noticias importantes",
+            "text": "Brecha salarial en México: Las mujeres ganan 27% menos que los hombres.",
+            "next": "Continuar",
+            "img": "https://www.elfinanciero.com.mx/resizer/1Uj8Jug7bT15lH7UeJ_oIsBqQ7Q=/800x0/filters:format(jpg):quality(70)/cloudfront-us-east-1.images.arcpublishing.com/elfinanciero/RG5PQ37RKBC2VAAYULYDZQ4V7A.jpeg"
+        },
+        "avatarSelection": {
+            "header": "1 - Personalizar",
+            "text": "Elige un avatar:",
+            "next": "Continuar"
+        },
+        "wrongAnswer": "¡Respuesta equivocada!",
+        "rightAnswer": "¡Respuesta correcta!",
+        "quiz": {
+            "header": "¡Responder!",
+            "text": "¡Responde las siguientes preguntas para ganar puntos, trofeos y alcanzar una mejor posición en la clasificación!"
+        }
+    },
+
+    "preTest": "https://www.jotform.com/build/233376039608057?sessionid={{sessionid}}",
+    "postTest": "https://www.jotform.com/build/240235651251043",
+
+    "theme": {
+        "primary": "blue",
+        "secondary": "#blue"
+    },
+
+    "ranking": [{
+        "name": "Juana",
+        "points": 60,
+        "avatar": "./assets/{theme}/images/ranking1.png"
+    }, {
+        "name": "Paulina",
+        "points": 50,
+        "avatar": "./assets/{theme}/images/ranking2.png"
+    }, {
+        "name": "Alejandra",
+        "points": 40,
+        "avatar": "./assets/{theme}/images/ranking3.png"
+    }, {
+        "name": "Guadalupe",
+        "points": 30,
+        "avatar": "./assets/{theme}/images/ranking4.png"
+    }],
+
+    "avatarList": [
+        "./assets/stFemale/images/avatar1.png",
+        "./assets/stFemale/images/avatar2.png",
+        "./assets/stFemale/images/avatar3.png",
+        "./assets/stFemale/images/ranking4.png"
+    ]
+}

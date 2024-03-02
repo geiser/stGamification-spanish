@@ -1,0 +1,13 @@
+.game-container {
+    padding: 2%;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between;
+}
+
+.game-container-box {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    max-width: 28%;
+}

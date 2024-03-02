@@ -1,0 +1,49 @@
+.ranking-player, .ranking-player .player {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 0;
+    flex: 1 1 auto;
+    align-items: center;
+    align-content: center;
+}
+
+.ranking-player * {
+    display: flex;
+    justify-content: left;
+    padding: 0 8px;
+}
+
+.ranking-player {
+    max-width: 100%;
+    padding: 8px 0;
+}
+
+.ranking-player .player {
+    max-width: 55%;
+}
+
+.ranking-player .points {
+    display: flex;
+    flex: 1 1 auto;
+}
+
+.points-bar-container {
+    max-width: 80%;
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    padding: 0;
+}
+
+.points-bar-container .points-bar {
+    max-width: 100% !important;
+    height: 15px;
+    padding: 0;
+}
+
+.ranking-player .avatar img {
+    max-width: 66px;
+    display: flex;
+    border-radius: 20px;
+}
