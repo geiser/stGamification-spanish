@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "license": "MIT",
   "private": true,
+  "basename": "/habadara",
   "proxy": "http://localhost:8080",
   "homepage": "https://localhost:8080",
   "engines" : { 

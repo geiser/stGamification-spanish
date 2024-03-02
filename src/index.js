@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { createSession, validateSession } from "./sessionManager";
+import { BrowserRouter, Route, Link } from "react-router-dom";
 
 (function() {
     const storage = window.localStorage;
@@ -17,8 +18,10 @@ import { createSession, validateSession } from "./sessionManager";
     function renderWebpage() {
         ReactDOM.render(
             <React.StrictMode>
-                <App />
-            </React.StrictMode>,
+		<BrowserRouter basename={basename} forceRefresh={true} >
+                    <App />
+                </BrowserRouter>
+	    </React.StrictMode>,
             document.getElementById('root')
         );
     }

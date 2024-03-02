@@ -2,6 +2,9 @@ import axios from "axios";
 
 const storage = localStorage;
 
+var pjson = require('../package.json');
+axios.defaults.baseURL = pjson.basename ?? '/';
+
 export { storage };
 
 export function getSessionId() {
