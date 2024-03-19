@@ -8,6 +8,10 @@ import { BrowserRouter, Route, Link } from "react-router-dom";
 (function() {
     const storage = window.localStorage;
 
+    var pjson = require('../package.json');
+    const basename = pjson.basename ?? '/';
+
+
     Promise.resolve()
         .then(validateSession)
             .catch(createSession)

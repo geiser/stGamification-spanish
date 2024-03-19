@@ -9,4 +9,4 @@ services:
       - /home/node/app/build
     command: bash -c "yarn run build-client && yarn start"
     ports:
-      - "8080:8080"
+      - "8082:8082"

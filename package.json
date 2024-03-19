@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "license": "MIT",
   "private": true,
+  "proxy": "127.0.0.1:8082",
+  "homepage": "https://gcc.eastus.cloudapp.azure.com/habadara",
   "basename": "/habadara",
-  "proxy": "http://localhost:8080",
-  "homepage": "https://localhost:8080",
   "engines" : { 
     "npm" : ">=8.8.0",
     "node" : "14.x"
