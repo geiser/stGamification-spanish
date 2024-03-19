@@ -19,8 +19,8 @@
         }
     },
 
-    "preTest": "https://www.jotform.com/build/233376039608057?sessionid={{sessionid}}",
-    "postTest": "https://www.jotform.com/build/240235651251043?sessionid={{sessionid}}",
+    "preTest": "https://www.jotform.com/build/233376039608057?sessionid={{sessionId}}",
+    "postTest": "https://www.jotform.com/build/240235651251043?sessionid={{sessionId}}",
 
     "playSound": true,
 
