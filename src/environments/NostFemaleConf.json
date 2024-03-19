@@ -7,10 +7,10 @@
         "ranking": "Clasificación",
         "myTrophies": "Mis trofeos",
         "stMessage": {
-            "header": "Noticias importantes",
-            "text": "Brecha salarial en México: Las mujeres ganan 27% menos que los hombres.",
+            "header": "Usted sabia que ...",
+            "text": "Brecha salarial en México: Las mujeres ganan 27% menos que los hombres (fuente: https://www.elfinanciero.com.mx/economia/2022/03/07/brecha-salarial-en-mexico-las-mujeres-ganan-27-menos-que-los-hombres/)",
             "next": "Continuar",
-            "img": "https://www.elfinanciero.com.mx/resizer/1Uj8Jug7bT15lH7UeJ_oIsBqQ7Q=/800x0/filters:format(jpg):quality(70)/cloudfront-us-east-1.images.arcpublishing.com/elfinanciero/RG5PQ37RKBC2VAAYULYDZQ4V7A.jpeg"
+            "img": "https://i.ibb.co/c8bK8gd/Image.png"
         },
         "avatarSelection": {
             "header": "1 - Personalizar",

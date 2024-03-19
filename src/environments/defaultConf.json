@@ -6,12 +6,6 @@
         "rightAnswers": "Correcto",
         "ranking": "Clasificación",
         "myTrophies": "Mis trofeos",
-        "stMessage": {
-            "header": "Noticias importantes",
-            "text": "",
-            "next": "Continuar",
-            "img": ""
-        },
         "avatarSelection": {
             "header": "1 - Personalizar",
             "text": "Elige un avatar:",

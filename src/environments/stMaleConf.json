@@ -7,10 +7,10 @@
         "ranking": "Clasificación",
         "myTrophies": "Mis trofeos",
         "stMessage": {
-            "header": "Noticias importantes",
-            "text": "En México una mujer gana 84 pesos por el trabajo que a un hombre le pagan 100.",
+            "header": "Usted sabia que ...",
+            "text": "En México una mujer gana 84 pesos por el trabajo que a un hombre le pagan 100 (fuente: https://www.infobae.com/mexico/2023/03/08/en-mexico-una-mujer-gana-84-pesos-por-el-trabajo-que-a-un-hombre-le-pagan-100/)",
             "next": "Continuar",
-            "img": "https://raw.githubusercontent.com/bizagi001/gamification/main/gamification/noticia.png"
+            "img": "https://i.ibb.co/hdvSs1S/Image.png"
         },
         "avatarSelection": {
             "header": "1 - Personalizar",
