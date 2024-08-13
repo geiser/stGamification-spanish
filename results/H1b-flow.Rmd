@@ -1,0 +1,869 @@
+---
+title: "Non-Parametric ANCOVA tests for for assess flow state in environmental cond"
+author: Geiser C. Challco <geiser@alumni.usp.br>
+comment: Testes Não Parametricos ANCOVA para determinar se houve diferenças significativas
+         na aprendizagem (medido usando pre- e pos-testes).
+         
+         Non-parametric ANCOVA tests to determine whether there were significant differences
+         in the learning (measured using pre- and post-tests).
+         
+         Author - Geiser C. Challco <geiser@alumni.usp.br>
+         
+         Shiny-Statistic is distributed in the hope that it will be useful,
+         but WITHOUT ANY WARRANTY; without even the implied warranty of
+         MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+         GNU General Public License for more details.
+         
+         You should have received a copy of the GNU General Public License.
+         If not, see <https://www.gnu.org/licenses/>.
+output:
+  github_document:
+    toc: true
+  word_document:
+    toc: true
+  html_document:
+    toc: true
+fontsize: 10pt
+---
+
+
+```{r setup, include=FALSE}
+# Install and Load Packages
+if (!'remotes' %in% rownames(installed.packages())) install.packages('remotes')
+if (!"rshinystatistics" %in% rownames(installed.packages())) {
+  remotes::install_github("geiser/rshinystatistics")
+} else if (packageVersion("rshinystatistics") < "0.0.0.9900") {
+  remotes::install_github("geiser/rshinystatistics")
+}
+
+wants <- c('ggplot2','ggpubr','rshinystatistics','utils','randomcoloR')
+has <- wants %in% rownames(installed.packages())
+if (any(!has)) install.packages(wants[!has])
+
+library(readxl)
+
+library(shiny)
+library(esquisse)
+library(scales)
+library(knitr)
+library(rmarkdown)
+
+library(utils)
+library(ggpubr)
+library(ggplot2)
+library(randomcoloR)
+
+library(plyr)
+library(dplyr)
+
+library(rstatix)
+library(rshinystatistics)
+```
+
+```{r, include=FALSE, purl=FALSE}
+options(knitr.kable.NA = '')
+```
+
+# Setting Initial Variables
+
+```{r}
+dv = "flow"
+dv.pos = "fss"
+dv.pre = "dfs"
+dv.dif = "dif.flow"
+
+fatores2 <- c("gender","Meaning","Presence","Search")
+lfatores2 <- as.list(fatores2)
+names(lfatores2) <- fatores2
+
+fatores1 <- c("cond.env", fatores2)
+lfatores1 <- as.list(fatores1)
+names(lfatores1) <- fatores1
+
+lfatores <- c(lfatores1)
+
+color <- list()
+color[["prepost"]] = c("#ffee65","#f28e2B")
+color[["env"]] = c("#a2b6c3","#1054b1","#fc2c8c")
+color[["cond"]] = c("#aa8882","#fd7f6f","#42ae20")
+color[["cond.env"]] = c("#aa8882","#fd7f6f","#42ae20")
+color[["gender"]] = c("#FF007F","#4D4DFF")
+color[["Meaning"]] = c("#c4ab34","#17cbe1","#f88208")
+color[["Presence"]] = c("#c4ab34","#17cbe1","#f88208")
+color[["Search"]] = c("#c4ab34","#17cbe1","#f88208")
+
+color[["gender.Meaning"]] = c("#feb1d8","#b1b1fe","#FF007F","#4D4DFF","#dc006d","#3737ff")
+color[["gender.Presence"]] = c("#feb1d8","#b1b1fe","#FF007F","#4D4DFF","#dc006d","#3737ff")
+color[["gender.Search"]] = c("#feb1d8","#b1b1fe","#FF007F","#4D4DFF","#dc006d","#3737ff")
+
+
+level <- list()
+level[["env"]] = c("neutral","stM","stF")
+level[["cond"]] = c("neutral","stThreat","stBoost")
+level[["cond.env"]] = c("neutral","stThreat","stBoost")
+level[["gender"]] = c("F","M")
+level[["Meaning"]] = c("lower","median","upper")
+level[["Presence"]] = c("lower","median","upper")
+level[["Search"]] = c("lower","median","upper")
+
+level[["gender.Meaning"]] = c("F.lower","M.lower","F.median","M.median","F.upper","M.upper")
+level[["gender.Presence"]] = c("F.lower","M.lower","F.median","M.median","F.upper","M.upper")
+level[["gender.Search"]] = c("F.lower","M.lower","F.median","M.median","F.upper","M.upper")
+
+
+gdat <- read_excel("../data/data.xlsx", sheet = "results")
+gdat <- gdat[!is.na(gdat[[dv.pre]]) & !is.na(gdat[[dv.pos]]),]
+if (!dv.dif %in% colnames(gdat))
+  gdat[[dv.dif]] <- gdat[[dv.pos]] - gdat[[dv.pre]]
+
+
+
+
+
+dat <- gdat
+dat$cond.env <- factor(dat[["cond.env"]], level[["cond.env"]])
+for (coln in c(names(lfatores))) {
+  if (length(level[[coln]]) > 0)
+    plevel = level[[coln]][level[[coln]] %in% unique(dat[[coln]])]
+  else
+    plevel = unique(dat[[coln]])[!is.na(unique(dat[[coln]]))]
+  
+  dat[[coln]] <- factor(dat[[coln]], plevel)
+}
+
+dat <- dat[,c("userId", names(lfatores), dv.pre, dv.pos, dv.dif)]
+
+dat.long <- rbind(dat, dat)
+dat.long$time <- c(rep("pre", nrow(dat)), rep("pos", nrow(dat)))
+dat.long$time <- factor(dat.long$time, c("pre","pos"))
+dat.long[[dv]] <- c(dat[[dv.pre]], dat[[dv.pos]])
+
+
+for (f in c("cond.env", names(lfatores))) {
+  if (is.null(color[[f]]) && length(unique(dat[[f]])) > 0) 
+      color[[f]] <- distinctColorPalette(length(unique(dat[[f]])))
+}
+
+for (f in c(fatores2)) {
+  if (is.null(color[[paste0("cond.env:",f)]]) && length(unique(dat[[f]])) > 0)
+    color[[paste0("cond.env:",f)]] <- distinctColorPalette(
+      length(unique(dat[["cond.env"]]))*length(unique(dat[[f]])))
+}
+
+ldat <- list()
+laov <- list()
+lpwc <- list()
+lemms <- list()
+```
+
+# Descriptive Statistics of Initial Data
+
+```{r}
+df <- get.descriptives(dat, c(dv.pre, dv.pos, dv.dif), c("cond.env"),
+                       symmetry.test = T, normality.test = F)
+df <- plyr::rbind.fill(
+  df, do.call(plyr::rbind.fill, lapply(lfatores2, FUN = function(f) {
+    if (nrow(dat) > 0 && sum(!is.na(unique(dat[[f]]))) > 1)
+      get.descriptives(dat, c(dv.pre,dv.pos), c("cond.env", f), include.global = F,
+                       symmetry.test = T, normality.test = F)
+    }))
+)
+df <- df[,c("variable",fatores1[fatores1 %in% colnames(df)],
+            colnames(df)[!colnames(df) %in% c(fatores1,"variable")])]
+```
+
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+# One-way factor analysis for: *flow ~ cond.env*
+
+```{r}
+pdat = remove_group_data(dat[!is.na(dat[["cond.env"]]),], "dif.flow", "cond.env", n.limit = 3)
+
+pdat.long <- rbind(pdat[,c("userId","cond.env")], pdat[,c("userId","cond.env")])
+pdat.long[["time"]] <- c(rep("pre", nrow(pdat)), rep("pos", nrow(pdat)))
+pdat.long[["time"]] <- factor(pdat.long[["time"]], c("pre","pos"))
+pdat.long[["flow"]] <- c(pdat[["dfs"]], pdat[["fss"]])
+
+y.position.min <- abs(
+  max(pdat.long[["flow"]])
+  - min(pdat.long[["flow"]]))/20
+
+lvars = as.list(c("dif.flow","fss","dfs"))
+names(lvars) = unlist(lvars)
+```
+
+## Pre-test and Post-test PairWise comparisons for: *flow ~ cond.env*
+
+```{r}
+pwc.long <- group_by(pdat.long, cond.env) %>%
+  pairwise_wilcox_test(flow ~ time, detailed = T)
+
+df <- pwc.long[,c(".y.","cond.env","group1","group2","n1","n2","estimate",
+                  "statistic","p.adj","p.adj.signif")]
+```
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+```{r, dpi=300, fig.width=12, fig.height=8}
+stat.test <- pwc.long %>% add_xy_position(x = "time", fun = "max")
+stat.test$y.position <- stat.test$y.position + y.position.min
+
+gg <- ggline(
+  pdat.long, x = "time", y = "flow", size = 1.5,
+  facet.by = "cond.env", add = c("mean_ci"), color = "cond.env",
+  position = position_dodge(width = 0.3), palette = color[["cond.env"]])
+
+pdat.long$xj = jitter(as.numeric(pdat.long[["time"]]), amount=.1)
+pdat.long$yj = jitter(pdat.long[["flow"]], amount = .01)
+
+gg + geom_point(
+  data = pdat.long, aes_string(x="xj",y="yj", color = "cond.env"), size=0.5) +
+  stat_pvalue_manual(
+    stat.test, tip.length = 0, hide.ns = T, label.size = 5,
+    position = position_dodge(width = 0.3),
+    label = "{ p.adj } ({ p.adj.signif })") + xlab("") +
+  theme(strip.text = element_text(size = 16),
+        axis.text = element_text(size = 18))
+```
+
+
+
+## Kruskal and Wilcoxon PairWise comparisons for: *flow ~ cond.env*
+
+
+```{r}
+kt <- lapply(lvars, FUN = function(x) {
+  kruskal_test(pdat, as.formula(paste0(x," ~ cond.env")))  
+})
+
+df <- do.call(rbind.fill, lapply(lvars, function(x) {
+  add_significance(merge(
+    kt[[x]], kruskal_effsize(pdat, as.formula(paste0(x," ~ cond.env"))),
+    by = c(".y.","n"), suffixes = c("",".ez")))
+}))
+
+df <- df[,c(".y.","n","df","statistic","p","p.signif","effsize","magnitude")]
+```
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+```{r}
+pwc <- lapply(lvars, FUN = function(x) {
+  pairwise_wilcox_test(pdat, as.formula(paste0(x," ~ cond.env")), detailed = T)  
+})
+
+df <- do.call(rbind.fill, pwc)
+```
+
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+```{r}
+plots <- lapply(lvars, FUN = function(y) {
+  stat.test <- pwc[[y]] %>% add_xy_position(x = "cond.env")
+  stat.test$y.position <- stat.test$y.position + y.position.min
+  ggboxplot(pdat, x = "cond.env", y = y, fill = "cond.env",
+            palette = color[["cond.env"]]) +
+    stat_pvalue_manual(stat.test, tip.length = 0, hide.ns = T, label.size = 5,
+                       label="{ p.adj } ({ p.adj.signif })") + xlab("")
+})
+```
+
+```{r, dpi=300, fig.width=16, fig.height=8}
+egg::ggarrange(plots[["dfs"]], plots[["fss"]], nrow = 1)
+```
+
+```{r, dpi=300, fig.width=8, fig.height=8}
+plots[["dif.flow"]] +
+  labs(subtitle = get_test_label(kt[["dif.flow"]], detailed = T),
+       caption = get_pwc_label(pwc[["dif.flow"]])) +
+  ylab("flow (dif)")  +
+  theme(strip.text = element_text(size = 16),
+        axis.text = element_text(size = 18))
+```
+
+
+
+
+# Two-way factor analysis for: *flow ~ cond:Meaning*
+
+
+```{r}
+pdat = remove_group_data(
+  dat[!is.na(dat[["cond.env"]]) & !is.na(dat[["Meaning"]]),],
+  "dif.flow", c("cond.env","Meaning"), n.limit = 3)
+
+pdat.long <- rbind(pdat[,c("userId","cond.env","Meaning")],
+                   pdat[,c("userId","cond.env","Meaning")])
+pdat.long[["time"]] <- c(rep("pre", nrow(pdat)), rep("pos", nrow(pdat)))
+pdat.long[["time"]] <- factor(pdat.long[["time"]], c("pre","pos"))
+pdat.long[["flow"]] <- c(pdat[["dfs"]], pdat[["fss"]])
+
+y.position.min <- abs(
+  max(pdat.long[["flow"]])
+  - min(pdat.long[["flow"]]))/20
+
+lvars = as.list(c("dif.flow","fss","dfs"))
+names(lvars) = unlist(lvars)
+```
+
+## Pre-test and Post-test PairWise comparisons for: *flow ~ cond.env:Meaning*
+
+```{r}
+pwc.long <- group_by(pdat.long, cond.env:Meaning) %>%
+  pairwise_wilcox_test(flow ~ time, detailed = T)
+
+df <- pwc.long[,c(".y.","cond.env:Meaning","group1","group2","n1","n2","estimate",
+                  "statistic","p.adj","p.adj.signif")]
+```
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+```{r, dpi=300, fig.width=12, fig.height=8}
+pwc.long <- group_by(pdat.long, cond.env, Meaning) %>%
+  pairwise_wilcox_test(flow ~ time, detailed = T)
+
+stat.test <- pwc.long %>% add_xy_position(x = "time", fun = "mean_ci")
+sidx = which(stat.test$p.adj.signif != "ns")
+stat.test$y.position[sidx] <- stat.test$y.position[sidx] + y.position.min * (1:length(sidx))
+
+gg <- ggline(
+  pdat.long, x = "time", y = "flow",
+  color = "Meaning", linetype = "Meaning", shape = "Meaning", size = 1.5,
+  facet.by = "cond.env", add = c("mean_ci"),
+  position = position_dodge(width = 0.3), palette = color[["Meaning"]])
+
+pdat.long$xj = jitter(as.numeric(pdat.long[["time"]]), amount=.1)
+pdat.long$yj = jitter(pdat.long[["flow"]], amount = .01)
+
+gg + geom_point(
+  data = pdat.long, aes_string(x="xj",y="yj",colour="Meaning"), size=0.5) +
+  stat_pvalue_manual(
+    stat.test, tip.length = 0, hide.ns = T, label.size = 5,
+    position = position_dodge(width = 0.3), color = "Meaning",
+    label = "{ p.adj } ({ p.adj.signif })") + xlab("") +
+  theme(strip.text = element_text(size = 16),
+        axis.text = element_text(size = 18))
+```
+
+## Scheirer and Wilcoxon PairWise comparisons for: *flow ~ cond.env:Meaning*
+
+
+```{r}
+sch <- lapply(lvars, FUN = function(x) {
+  scheirer.test(pdat, x, c("cond.env","Meaning"), as.table = T) 
+})
+df <- do.call(rbind.fill, sch)
+```
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+```{r}
+pwc <- lapply(lvars, FUN = function(x) {
+  list(
+    cond.env = tryCatch(pairwise_wilcox_test(group_by(pdat, Meaning),
+                                 as.formula(paste0(x," ~ cond.env")), detailed = T)
+                         , error = function(e) NULL),
+    Meaning = tryCatch(pairwise_wilcox_test(group_by(pdat, cond.env),
+                                 as.formula(paste0(x," ~ Meaning")), detailed = T)
+                         , error = function(e) NULL)
+  )
+})
+
+df <- do.call(rbind.fill, lapply(pwc, FUN =  function(x) {
+  do.call(rbind.fill, x)
+}))
+
+ivs = c()
+if ("cond.env" %in% colnames(df)) ivs = c(ivs, "cond.env")
+if ("Meaning" %in% colnames(df)) ivs = c(ivs, "Meaning")
+df <- df[,c(".y.",ivs,"group1","group2","n1","n2","estimate",
+            "statistic","p.adj","p.adj.signif")]
+```
+
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+```{r}
+plots <- lapply(lvars, FUN = function(y) {
+  livs = list("cond.env", "Meaning")
+  names(livs) = unlist(livs)
+  lapply(livs, FUN = function(x) {
+    iv2 = setdiff(names(livs), x)
+    if (!is.null(pwc[[y]][[iv2]])) {
+      stat.test <- pwc[[y]][[iv2]] %>% add_xy_position(x = x, fun = "max")
+      sidx = which(stat.test$p.adj.signif != "ns")
+      stat.test$y.position[sidx] <- stat.test$y.position[sidx] + y.position.min * (1:length(sidx))
+      
+      ggboxplot(pdat, x = x, y = y, fill = iv2, palette = color[[iv2]]) +
+        stat_pvalue_manual(stat.test, tip.length = 0, hide.ns = T, label.size = 5,
+                           label="{ p.adj } ({ p.adj.signif })") + xlab("")
+    }
+  })
+})
+```
+
+```{r, dpi=300, fig.width=16, fig.height=8}
+if (!is.null(plots[["dfs"]][["cond.env"]]) &&
+    !is.null(plots[["fss"]][["cond.env"]])) {
+  egg::ggarrange(plots[["dfs"]][["cond.env"]],
+                 plots[["fss"]][["cond.env"]], nrow = 1)  
+}
+```
+
+
+```{r, dpi=300, fig.width=16, fig.height=8}
+if (!is.null(plots[["dfs"]][["Meaning"]]) &&
+    !is.null(plots[["fss"]][["Meaning"]])) {
+  egg::ggarrange(plots[["dfs"]][["Meaning"]],
+                 plots[["fss"]][["Meaning"]], nrow = 1)
+}
+```
+
+```{r, dpi=300, fig.width=8, fig.height=8}
+psch = sch[["dif.flow"]]
+idx = which(psch$Effect == "cond.env:Meaning") 
+
+dof = floor(as.double(psch$Df[idx]))
+dof.res = floor(as.double(psch$Df[which(psch$Effect == "Residuals")]))
+statistic = round(as.double(psch$H[idx]), 3)
+p = round(as.double(psch[["p.value"]][idx]), 3)
+pval = ifelse(p < 0.001,paste0(" , p<0.001"),paste0(" , p=",p))
+
+if (!is.null(plots[["dif.flow"]][["cond.env"]]))
+  plots[["dif.flow"]][["cond.env"]] +
+    labs(subtitle = paste0("Scheirer-Ray-Hare H(", dof, ",", 
+          dof.res, ")=", statistic, pval),
+         caption = get_pwc_label(pwc[["dif.flow"]][["Meaning"]])) +
+    ylab("flow (dif)") +
+  theme(strip.text = element_text(size = 16),
+        axis.text = element_text(size = 18))
+```
+
+
+```{r, dpi=300, fig.width=8, fig.height=8}
+psch = sch[["dif.flow"]]
+idx = which(psch$Effect == "cond.env:Meaning") 
+
+dof = floor(as.double(psch$Df[idx]))
+dof.res = floor(as.double(psch$Df[which(psch$Effect == "Residuals")]))
+statistic = round(as.double(psch$H[idx]), 3)
+p = round(as.double(psch[["p.value"]][idx]), 3)
+pval = ifelse(p < 0.001,paste0(" , p<0.001"),paste0(" , p=",p))
+
+if (!is.null(plots[["dif.flow"]][["Meaning"]]))
+  plots[["dif.flow"]][["Meaning"]] +
+    labs(subtitle = paste0("Scheirer-Ray-Hare H(", dof, ",", 
+          dof.res, ")=", statistic, pval),
+         caption = get_pwc_label(pwc[["dif.flow"]][["cond.env"]])) +
+    ylab("flow (dif)") +
+  theme(strip.text = element_text(size = 16),
+        axis.text = element_text(size = 18))
+```
+
+
+
+
+
+
+# Two-way factor analysis for: *flow ~ cond:Presence*
+
+
+```{r}
+pdat = remove_group_data(
+  dat[!is.na(dat[["cond.env"]]) & !is.na(dat[["Presence"]]),],
+  "dif.flow", c("cond.env","Presence"), n.limit = 3)
+
+pdat.long <- rbind(pdat[,c("userId","cond.env","Presence")],
+                   pdat[,c("userId","cond.env","Presence")])
+pdat.long[["time"]] <- c(rep("pre", nrow(pdat)), rep("pos", nrow(pdat)))
+pdat.long[["time"]] <- factor(pdat.long[["time"]], c("pre","pos"))
+pdat.long[["flow"]] <- c(pdat[["dfs"]], pdat[["fss"]])
+
+y.position.min <- abs(
+  max(pdat.long[["flow"]])
+  - min(pdat.long[["flow"]]))/20
+
+lvars = as.list(c("dif.flow","fss","dfs"))
+names(lvars) = unlist(lvars)
+```
+
+## Pre-test and Post-test PairWise comparisons for: *flow ~ cond.env:Presence*
+
+```{r}
+pwc.long <- group_by(pdat.long, cond.env:Presence) %>%
+  pairwise_wilcox_test(flow ~ time, detailed = T)
+
+df <- pwc.long[,c(".y.","cond.env:Presence","group1","group2","n1","n2","estimate",
+                  "statistic","p.adj","p.adj.signif")]
+```
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+```{r, dpi=300, fig.width=12, fig.height=8}
+pwc.long <- group_by(pdat.long, cond.env, Presence) %>%
+  pairwise_wilcox_test(flow ~ time, detailed = T)
+
+stat.test <- pwc.long %>% add_xy_position(x = "time", fun = "mean_ci")
+sidx = which(stat.test$p.adj.signif != "ns")
+stat.test$y.position[sidx] <- stat.test$y.position[sidx] + y.position.min * (1:length(sidx))
+
+gg <- ggline(
+  pdat.long, x = "time", y = "flow",
+  color = "Presence", linetype = "Presence", shape = "Presence", size = 1.5,
+  facet.by = "cond.env", add = c("mean_ci"),
+  position = position_dodge(width = 0.3), palette = color[["Presence"]])
+
+pdat.long$xj = jitter(as.numeric(pdat.long[["time"]]), amount=.1)
+pdat.long$yj = jitter(pdat.long[["flow"]], amount = .01)
+
+gg + geom_point(
+  data = pdat.long, aes_string(x="xj",y="yj",colour="Presence"), size=0.5) +
+  stat_pvalue_manual(
+    stat.test, tip.length = 0, hide.ns = T, label.size = 5,
+    position = position_dodge(width = 0.3), color = "Presence",
+    label = "{ p.adj } ({ p.adj.signif })") + xlab("") +
+  theme(strip.text = element_text(size = 16),
+        axis.text = element_text(size = 18))
+```
+
+## Scheirer and Wilcoxon PairWise comparisons for: *flow ~ cond.env:Presence*
+
+
+```{r}
+sch <- lapply(lvars, FUN = function(x) {
+  scheirer.test(pdat, x, c("cond.env","Presence"), as.table = T) 
+})
+df <- do.call(rbind.fill, sch)
+```
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+```{r}
+pwc <- lapply(lvars, FUN = function(x) {
+  list(
+    cond.env = tryCatch(pairwise_wilcox_test(group_by(pdat, Presence),
+                                 as.formula(paste0(x," ~ cond.env")), detailed = T)
+                         , error = function(e) NULL),
+    Presence = tryCatch(pairwise_wilcox_test(group_by(pdat, cond.env),
+                                 as.formula(paste0(x," ~ Presence")), detailed = T)
+                         , error = function(e) NULL)
+  )
+})
+
+df <- do.call(rbind.fill, lapply(pwc, FUN =  function(x) {
+  do.call(rbind.fill, x)
+}))
+
+ivs = c()
+if ("cond.env" %in% colnames(df)) ivs = c(ivs, "cond.env")
+if ("Presence" %in% colnames(df)) ivs = c(ivs, "Presence")
+df <- df[,c(".y.",ivs,"group1","group2","n1","n2","estimate",
+            "statistic","p.adj","p.adj.signif")]
+```
+
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+```{r}
+plots <- lapply(lvars, FUN = function(y) {
+  livs = list("cond.env", "Presence")
+  names(livs) = unlist(livs)
+  lapply(livs, FUN = function(x) {
+    iv2 = setdiff(names(livs), x)
+    if (!is.null(pwc[[y]][[iv2]])) {
+      stat.test <- pwc[[y]][[iv2]] %>% add_xy_position(x = x, fun = "max")
+      sidx = which(stat.test$p.adj.signif != "ns")
+      stat.test$y.position[sidx] <- stat.test$y.position[sidx] + y.position.min * (1:length(sidx))
+      
+      ggboxplot(pdat, x = x, y = y, fill = iv2, palette = color[[iv2]]) +
+        stat_pvalue_manual(stat.test, tip.length = 0, hide.ns = T, label.size = 5,
+                           label="{ p.adj } ({ p.adj.signif })") + xlab("")
+    }
+  })
+})
+```
+
+```{r, dpi=300, fig.width=16, fig.height=8}
+if (!is.null(plots[["dfs"]][["cond.env"]]) &&
+    !is.null(plots[["fss"]][["cond.env"]])) {
+  egg::ggarrange(plots[["dfs"]][["cond.env"]],
+                 plots[["fss"]][["cond.env"]], nrow = 1)  
+}
+```
+
+
+```{r, dpi=300, fig.width=16, fig.height=8}
+if (!is.null(plots[["dfs"]][["Presence"]]) &&
+    !is.null(plots[["fss"]][["Presence"]])) {
+  egg::ggarrange(plots[["dfs"]][["Presence"]],
+                 plots[["fss"]][["Presence"]], nrow = 1)
+}
+```
+
+```{r, dpi=300, fig.width=8, fig.height=8}
+psch = sch[["dif.flow"]]
+idx = which(psch$Effect == "cond.env:Presence") 
+
+dof = floor(as.double(psch$Df[idx]))
+dof.res = floor(as.double(psch$Df[which(psch$Effect == "Residuals")]))
+statistic = round(as.double(psch$H[idx]), 3)
+p = round(as.double(psch[["p.value"]][idx]), 3)
+pval = ifelse(p < 0.001,paste0(" , p<0.001"),paste0(" , p=",p))
+
+if (!is.null(plots[["dif.flow"]][["cond.env"]]))
+  plots[["dif.flow"]][["cond.env"]] +
+    labs(subtitle = paste0("Scheirer-Ray-Hare H(", dof, ",", 
+          dof.res, ")=", statistic, pval),
+         caption = get_pwc_label(pwc[["dif.flow"]][["Presence"]])) +
+    ylab("flow (dif)") +
+  theme(strip.text = element_text(size = 16),
+        axis.text = element_text(size = 18))
+```
+
+
+```{r, dpi=300, fig.width=8, fig.height=8}
+psch = sch[["dif.flow"]]
+idx = which(psch$Effect == "cond.env:Presence") 
+
+dof = floor(as.double(psch$Df[idx]))
+dof.res = floor(as.double(psch$Df[which(psch$Effect == "Residuals")]))
+statistic = round(as.double(psch$H[idx]), 3)
+p = round(as.double(psch[["p.value"]][idx]), 3)
+pval = ifelse(p < 0.001,paste0(" , p<0.001"),paste0(" , p=",p))
+
+if (!is.null(plots[["dif.flow"]][["Presence"]]))
+  plots[["dif.flow"]][["Presence"]] +
+    labs(subtitle = paste0("Scheirer-Ray-Hare H(", dof, ",", 
+          dof.res, ")=", statistic, pval),
+         caption = get_pwc_label(pwc[["dif.flow"]][["cond.env"]])) +
+    ylab("flow (dif)") +
+  theme(strip.text = element_text(size = 16),
+        axis.text = element_text(size = 18))
+```
+
+
+
+
+
+
+# Two-way factor analysis for: *flow ~ cond:Search*
+
+
+```{r}
+pdat = remove_group_data(
+  dat[!is.na(dat[["cond.env"]]) & !is.na(dat[["Search"]]),],
+  "dif.flow", c("cond.env","Search"), n.limit = 3)
+
+pdat.long <- rbind(pdat[,c("userId","cond.env","Search")],
+                   pdat[,c("userId","cond.env","Search")])
+pdat.long[["time"]] <- c(rep("pre", nrow(pdat)), rep("pos", nrow(pdat)))
+pdat.long[["time"]] <- factor(pdat.long[["time"]], c("pre","pos"))
+pdat.long[["flow"]] <- c(pdat[["dfs"]], pdat[["fss"]])
+
+y.position.min <- abs(
+  max(pdat.long[["flow"]])
+  - min(pdat.long[["flow"]]))/20
+
+lvars = as.list(c("dif.flow","fss","dfs"))
+names(lvars) = unlist(lvars)
+```
+
+## Pre-test and Post-test PairWise comparisons for: *flow ~ cond.env:Search*
+
+```{r}
+pwc.long <- group_by(pdat.long, cond.env:Search) %>%
+  pairwise_wilcox_test(flow ~ time, detailed = T)
+
+df <- pwc.long[,c(".y.","cond.env:Search","group1","group2","n1","n2","estimate",
+                  "statistic","p.adj","p.adj.signif")]
+```
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+```{r, dpi=300, fig.width=12, fig.height=8}
+pwc.long <- group_by(pdat.long, cond.env, Search) %>%
+  pairwise_wilcox_test(flow ~ time, detailed = T)
+
+stat.test <- pwc.long %>% add_xy_position(x = "time", fun = "mean_ci")
+sidx = which(stat.test$p.adj.signif != "ns")
+stat.test$y.position[sidx] <- stat.test$y.position[sidx] + y.position.min * (1:length(sidx))
+
+gg <- ggline(
+  pdat.long, x = "time", y = "flow",
+  color = "Search", linetype = "Search", shape = "Search", size = 1.5,
+  facet.by = "cond.env", add = c("mean_ci"),
+  position = position_dodge(width = 0.3), palette = color[["Search"]])
+
+pdat.long$xj = jitter(as.numeric(pdat.long[["time"]]), amount=.1)
+pdat.long$yj = jitter(pdat.long[["flow"]], amount = .01)
+
+gg + geom_point(
+  data = pdat.long, aes_string(x="xj",y="yj",colour="Search"), size=0.5) +
+  stat_pvalue_manual(
+    stat.test, tip.length = 0, hide.ns = T, label.size = 5,
+    position = position_dodge(width = 0.3), color = "Search",
+    label = "{ p.adj } ({ p.adj.signif })") + xlab("") +
+  theme(strip.text = element_text(size = 16),
+        axis.text = element_text(size = 18))
+```
+
+## Scheirer and Wilcoxon PairWise comparisons for: *flow ~ cond.env:Search*
+
+
+```{r}
+sch <- lapply(lvars, FUN = function(x) {
+  scheirer.test(pdat, x, c("cond.env","Search"), as.table = T) 
+})
+df <- do.call(rbind.fill, sch)
+```
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+```{r}
+pwc <- lapply(lvars, FUN = function(x) {
+  list(
+    cond.env = tryCatch(pairwise_wilcox_test(group_by(pdat, Search),
+                                 as.formula(paste0(x," ~ cond.env")), detailed = T)
+                         , error = function(e) NULL),
+    Search = tryCatch(pairwise_wilcox_test(group_by(pdat, cond.env),
+                                 as.formula(paste0(x," ~ Search")), detailed = T)
+                         , error = function(e) NULL)
+  )
+})
+
+df <- do.call(rbind.fill, lapply(pwc, FUN =  function(x) {
+  do.call(rbind.fill, x)
+}))
+
+ivs = c()
+if ("cond.env" %in% colnames(df)) ivs = c(ivs, "cond.env")
+if ("Search" %in% colnames(df)) ivs = c(ivs, "Search")
+df <- df[,c(".y.",ivs,"group1","group2","n1","n2","estimate",
+            "statistic","p.adj","p.adj.signif")]
+```
+
+
+```{r, echo=FALSE, purl=FALSE}
+kable(df)
+```
+
+
+```{r}
+plots <- lapply(lvars, FUN = function(y) {
+  livs = list("cond.env", "Search")
+  names(livs) = unlist(livs)
+  lapply(livs, FUN = function(x) {
+    iv2 = setdiff(names(livs), x)
+    if (!is.null(pwc[[y]][[iv2]])) {
+      stat.test <- pwc[[y]][[iv2]] %>% add_xy_position(x = x, fun = "max")
+      sidx = which(stat.test$p.adj.signif != "ns")
+      stat.test$y.position[sidx] <- stat.test$y.position[sidx] + y.position.min * (1:length(sidx))
+      
+      ggboxplot(pdat, x = x, y = y, fill = iv2, palette = color[[iv2]]) +
+        stat_pvalue_manual(stat.test, tip.length = 0, hide.ns = T, label.size = 5,
+                           label="{ p.adj } ({ p.adj.signif })") + xlab("")
+    }
+  })
+})
+```
+
+```{r, dpi=300, fig.width=16, fig.height=8}
+if (!is.null(plots[["dfs"]][["cond.env"]]) &&
+    !is.null(plots[["fss"]][["cond.env"]])) {
+  egg::ggarrange(plots[["dfs"]][["cond.env"]],
+                 plots[["fss"]][["cond.env"]], nrow = 1)  
+}
+```
+
+
+```{r, dpi=300, fig.width=16, fig.height=8}
+if (!is.null(plots[["dfs"]][["Search"]]) &&
+    !is.null(plots[["fss"]][["Search"]])) {
+  egg::ggarrange(plots[["dfs"]][["Search"]],
+                 plots[["fss"]][["Search"]], nrow = 1)
+}
+```
+
+```{r, dpi=300, fig.width=8, fig.height=8}
+psch = sch[["dif.flow"]]
+idx = which(psch$Effect == "cond.env:Search") 
+
+dof = floor(as.double(psch$Df[idx]))
+dof.res = floor(as.double(psch$Df[which(psch$Effect == "Residuals")]))
+statistic = round(as.double(psch$H[idx]), 3)
+p = round(as.double(psch[["p.value"]][idx]), 3)
+pval = ifelse(p < 0.001,paste0(" , p<0.001"),paste0(" , p=",p))
+
+if (!is.null(plots[["dif.flow"]][["cond.env"]]))
+  plots[["dif.flow"]][["cond.env"]] +
+    labs(subtitle = paste0("Scheirer-Ray-Hare H(", dof, ",", 
+          dof.res, ")=", statistic, pval),
+         caption = get_pwc_label(pwc[["dif.flow"]][["Search"]])) +
+    ylab("flow (dif)") +
+  theme(strip.text = element_text(size = 16),
+        axis.text = element_text(size = 18))
+```
+
+
+```{r, dpi=300, fig.width=8, fig.height=8}
+psch = sch[["dif.flow"]]
+idx = which(psch$Effect == "cond.env:Search") 
+
+dof = floor(as.double(psch$Df[idx]))
+dof.res = floor(as.double(psch$Df[which(psch$Effect == "Residuals")]))
+statistic = round(as.double(psch$H[idx]), 3)
+p = round(as.double(psch[["p.value"]][idx]), 3)
+pval = ifelse(p < 0.001,paste0(" , p<0.001"),paste0(" , p=",p))
+
+if (!is.null(plots[["dif.flow"]][["Search"]]))
+  plots[["dif.flow"]][["Search"]] +
+    labs(subtitle = paste0("Scheirer-Ray-Hare H(", dof, ",", 
+          dof.res, ")=", statistic, pval),
+         caption = get_pwc_label(pwc[["dif.flow"]][["cond.env"]])) +
+    ylab("flow (dif)") +
+  theme(strip.text = element_text(size = 16),
+        axis.text = element_text(size = 18))
+```
+
+
+
+
+
